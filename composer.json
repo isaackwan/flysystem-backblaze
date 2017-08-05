@@ -1,5 +1,5 @@
 {
-    "name": "mhetreramesh/flysystem-backblaze",
+    "name": "isaackwan/flysystem-backblaze",
     "type": "library",
     "description": "Backblaze adapter for the flysystem filesystem abstraction library",
     "keywords": ["flysystem", "filesystem", "api", "backblaze", "client"],
@@ -41,5 +41,8 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "replace": {
+        "mhetreramesh/flysystem-backblaze": "1.0.8"
     }
 }
