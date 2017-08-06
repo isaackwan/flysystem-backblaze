@@ -157,7 +157,7 @@ class BackblazeAdapter extends AbstractAdapter {
     {
         return $this->getClient()->upload([
             'BucketName' => $this->bucketName,
-            'FileName' => $path,
+            'FileName' => $path . '/.bzEmpty',
             'Body' => ''
         ]);
     }
