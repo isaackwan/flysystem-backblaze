@@ -215,19 +215,21 @@ class BackblazeAdapter extends AbstractAdapter {
             'BucketName' => $this->bucketName,
         ]);
         if ($recursive === true && $directory === '') {
-            $regex = '/^.*$/';
+            $regex = '';
         } else if ($recursive === true && $directory !== '') {
-            $regex = '/^' . preg_quote($directory) . '\/.*$/';
+            $regex = '/^' . preg_quote($directory) . '\/.+$/';
         } else if ($recursive === false && $directory === '') {
-            $regex = '/^(?!.*\\/).*$/';
+            $regex = '/^(?!.+\\/).+$/';
         } else if ($recursive === false && $directory !== '') {
-            $regex = '/^' . preg_quote($directory) . '\/(?!.*\\/).*$/';
+            $regex = '/^' . preg_quote($directory) . '\/(?!.+\\/).+$/';
         } else {
             throw new \InvalidArgumentException();
         }
-        $fileObjects = array_filter($fileObjects, function ($fileObject) use ($directory, $regex) {
-            return 1 === preg_match($regex, $fileObject->getName());
-        });
+        if (!empty($regex)) {
+            $fileObjects = array_filter($fileObjects, function ($fileObject) use ($directory, $regex) {
+                return 1 === preg_match($regex, $fileObject->getName());
+            });
+        }
         $normalized = array_map(function ($fileObject) {
             return $this->getFileInfo($fileObject);
         }, $fileObjects);
