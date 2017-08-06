@@ -40,7 +40,7 @@ class BackblazeAdapter extends AbstractAdapter {
             'FileName' => $path,
             'Body' => $contents
         ]);
-        return $this->getFileInfo($file);
+        return $this->normalizeFileInfo($file);
     }
 
     /**
@@ -53,7 +53,7 @@ class BackblazeAdapter extends AbstractAdapter {
             'FileName' => $path,
             'Body' => $resource
         ]);
-        return $this->getFileInfo($file);
+        return $this->normalizeFileInfo($file);
     }
 
     /**
@@ -66,7 +66,7 @@ class BackblazeAdapter extends AbstractAdapter {
             'FileName' => $path,
             'Body' => $contents
         ]);
-        return $this->getFileInfo($file);
+        return $this->normalizeFileInfo($file);
     }
 
     /**
@@ -79,7 +79,7 @@ class BackblazeAdapter extends AbstractAdapter {
             'FileName' => $path,
             'Body' => $resource
         ]);
-        return $this->getFileInfo($file);
+        return $this->normalizeFileInfo($file);
     }
 
     /**
@@ -167,7 +167,8 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function getMetadata($path)
     {
-        return false;
+        $file = $this->getClient()->getFile(['FileName' => $path, 'BucketName' => $this->bucketName]);
+        return $this->normalizeFileInfo($file);
     }
 
     /**
@@ -175,7 +176,7 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function getMimetype($path)
     {
-        return false;
+        return $this->getMetadata($path);
     }
 
     /**
@@ -183,9 +184,7 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function getSize($path)
     {
-        $file = $this->getClient()->getFile(['FileName' => $path, 'BucketName' => $this->bucketName]);
-
-        return $this->getFileInfo($file);
+        return $this->getMetadata($path);
     }
 
     /**
@@ -193,9 +192,7 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function getTimestamp($path)
     {
-        $file = $this->getClient()->getFile(['FileName' => $path, 'BucketName' => $this->bucketName]);
-
-        return $this->getFileInfo($file);
+        return $this->getMetadata($path);
     }
 
     /**
@@ -231,7 +228,7 @@ class BackblazeAdapter extends AbstractAdapter {
             });
         }
         $normalized = array_map(function ($fileObject) {
-            return $this->getFileInfo($fileObject);
+            return $this->normalizeFileInfo($fileObject);
         }, $fileObjects);
         return array_values($normalized);
     }
@@ -244,13 +241,14 @@ class BackblazeAdapter extends AbstractAdapter {
      * @return array
      */
 
-    protected function getFileInfo($file)
+    protected function normalizeFileInfo($file)
     {
         $normalized = [
             'type' => 'file',
             'path' => $file->getName(),
             'timestamp' => substr($file->getUploadTimestamp(), 0, -3),
-            'size' => $file->getSize()
+            'size' => $file->getSize(),
+            'mimetype' => $file->getType(),
         ];
 
         return $normalized;
