@@ -109,7 +109,7 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function rename($path, $newpath)
     {
-        return false;
+        return $this->copy($path, $newpath) && $this->delete($path);
     }
 
     /**
@@ -117,11 +117,15 @@ class BackblazeAdapter extends AbstractAdapter {
      */
     public function copy($path, $newPath)
     {
-        return $this->getClient()->upload([
-            'BucketName' => $this->bucketName,
-            'FileName' => $newPath,
-            'Body' => @file_get_contents($path)
-        ]);
+        $content = $this->readStream($path);
+        if ($content === false || !array_key_exists('stream', $content) || !is_resource($content['stream'])) {
+            return false;
+        }
+        if ($this->writeStream($newPath, $content['stream'])) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
